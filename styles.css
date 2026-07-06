@@ -40,6 +40,11 @@
     }
     h1, h2, h3, .display { font-family: 'Fredoka One', cursive; }
     img { max-width: 100%; }
+    /* Excepción: la Zona 2 (Semáforo) usa una sola imagen de 3 paneles
+       puesta al 300% de ancho y desplazada con left para recortar solo
+       el panel correspondiente en cada tarjeta. La regla de arriba
+       rompía ese recorte, así que aquí se restaura su ancho real. */
+    .sem2-img-wrap img { max-width: none; }
 
     /* ====== SCREENS ====== */
     .screen {
