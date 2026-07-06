@@ -368,7 +368,6 @@
       transition: transform 0.3s;
       transform-style: preserve-3d;
       border: 3px solid rgba(255,255,255,0.3);
-      overflow: hidden;
     }
     .mem-card.flipped { transform: rotateY(180deg); }
     .mem-card-front, .mem-card-back {
@@ -379,7 +378,7 @@
       justify-content: center;
       border-radius: 8px;
       backface-visibility: hidden;
-      overflow: hidden;
+      -webkit-backface-visibility: hidden;
     }
     .mem-card-front { background: var(--ocean); color: white; font-size: 1.4rem; }
     /* Zona 1: contenedor de tarjetas sobre fondo pergamino */
@@ -632,6 +631,32 @@
 
     /* Score counter */
     .score-counter { background: rgba(255,255,255,0.2); border-radius: 20px; padding: 4px 12px; font-size: 0.85rem; color: white; font-weight: 700; }
+
+    /* ====== SHARE BUTTONS (pantalla final) ====== */
+    .share-icons-row {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .share-icon-btn {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+      transition: transform 0.15s ease;
+    }
+    .share-icon-btn:hover { transform: translateY(-2px); }
+    .share-icon-btn:active { transform: translateY(1px); }
+    .share-whatsapp { background: #25d366; }
+    .share-facebook { background: #1877f2; }
+    .share-copy { background: rgba(255,255,255,0.18); border: 1.5px solid rgba(255,255,255,0.35); }
 
     /* ========================================================
        RESPONSIVE
