@@ -1011,6 +1011,9 @@ function renderSemaforo() {
         padding: 12px 16px 10px;
         text-align: center;
         margin-bottom: 0;
+        max-width: 420px;
+        margin-left: auto;
+        margin-right: auto;
       }
       .sem2-header h2 {
         font-family: 'Fredoka One', cursive;
@@ -1028,6 +1031,9 @@ function renderSemaforo() {
         padding: 10px 10px 14px;
         border-radius: 0 0 14px 14px;
         margin-bottom: 14px;
+        max-width: 420px;
+        margin-left: auto;
+        margin-right: auto;
       }
       .sem2-card {
         flex: 1;
