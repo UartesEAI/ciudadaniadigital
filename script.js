@@ -1052,7 +1052,7 @@ function renderSemaforo() {
       }
       .sem2-img-wrap {
         width: 100%;
-        height: 120px;
+        aspect-ratio: 512.667 / 1023;
         overflow: hidden;
         position: relative;
       }
@@ -1061,8 +1061,7 @@ function renderSemaforo() {
         height: 100%;
         width: 300%;
         object-fit: cover;
-        top: -12px;
-        object-position: center top;
+        top: 0;
       }
       .sem2-img-wrap img.pos-verde  { left: 0; }
       .sem2-img-wrap img.pos-amarillo { left: -100%; }
@@ -1613,7 +1612,7 @@ let finalDilemmas = [];
 function startFinalChallenge() {
   dilemmaIdx = 0;
   // Elige 4 dilemas al azar del banco y mezcla el orden de las opciones de cada uno
-  finalDilemmas = pickRandom(DILEMMAS_POOL, 4).map(d => ({ ...d, options: shuffleArray(d.options) }));
+  finalDilemmas = pickRandom(DILEMMAS_POOL, 5).map(d => ({ ...d, options: shuffleArray(d.options) }));
   renderDilemma();
 }
 
