@@ -1648,8 +1648,22 @@ function answerDilemma(idx) {
   showFeedback(isCorrect, d.article, typeLabels[opt.type] + ' ' + d.explanation, renderDilemma);
 }
 
+// =================== RESPONSIVE VIEWPORT FIX ===================
+// Corrige el problema del 100vh en navegadores móviles (la barra de
+// direcciones aparece/desaparece y "salta" el contenido). Guardamos la
+// altura real de la ventana en una variable CSS y la usamos como respaldo
+// de 100dvh en styles.css.
+function setRealViewportHeight() {
+  const vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', `${vh}px`);
+}
+setRealViewportHeight();
+window.addEventListener('resize', setRealViewportHeight);
+window.addEventListener('orientationchange', setRealViewportHeight);
+
 // =================== INIT ===================
 document.addEventListener('DOMContentLoaded', () => {
+  setRealViewportHeight();
   loadState();
   showScreen('screen-intro');
 });
