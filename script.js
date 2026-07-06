@@ -1061,7 +1061,8 @@ function renderSemaforo() {
         height: 100%;
         width: 300%;
         object-fit: cover;
-        top: 0;
+        top: -12px;
+        object-position: center top;
       }
       .sem2-img-wrap img.pos-verde  { left: 0; }
       .sem2-img-wrap img.pos-amarillo { left: -100%; }
