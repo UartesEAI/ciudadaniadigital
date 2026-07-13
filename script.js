@@ -170,17 +170,43 @@ function confirmResetProgress() {
   }
 }
 
-function shareAchievement() {
+function getShareData() {
   const scoreText = document.getElementById('final-score-display')?.textContent || '';
-  const shareData = {
+  return {
     title: 'Ciudadano/a Digital — Isla del Tesoro',
     text: `¡Completé la aventura de Ciudadano/a Digital y obtuve ${scoreText}! 🏝️ Aprende a navegar el mundo digital con seguridad y respeto.`,
     url: window.location.href
   };
+}
+
+// Botón genérico: usa el share nativo del dispositivo si existe (móviles),
+// si no, cae en el flujo de copiar enlace.
+function shareAchievement() {
+  const shareData = getShareData();
   if (navigator.share) {
     navigator.share(shareData).catch(() => {});
-  } else if (navigator.clipboard) {
-    navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`)
+  } else {
+    shareCopyLink();
+  }
+}
+
+function shareToWhatsapp() {
+  const { text, url } = getShareData();
+  const waUrl = `https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`;
+  window.open(waUrl, '_blank', 'noopener,noreferrer');
+}
+
+function shareToFacebook() {
+  const { text, url } = getShareData();
+  const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`;
+  window.open(fbUrl, '_blank', 'noopener,noreferrer,width=600,height=500');
+}
+
+function shareCopyLink() {
+  const { text, url } = getShareData();
+  const fullText = `${text} ${url}`;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(fullText)
       .then(() => alert('¡Copiado! Ya puedes pegarlo donde quieras compartirlo.'))
       .catch(() => alert('No se pudo copiar automáticamente. Copia el enlace desde la barra de tu navegador.'));
   } else {
@@ -1011,9 +1037,6 @@ function renderSemaforo() {
         padding: 12px 16px 10px;
         text-align: center;
         margin-bottom: 0;
-        max-width: 420px;
-        margin-left: auto;
-        margin-right: auto;
       }
       .sem2-header h2 {
         font-family: 'Fredoka One', cursive;
@@ -1031,9 +1054,6 @@ function renderSemaforo() {
         padding: 10px 10px 14px;
         border-radius: 0 0 14px 14px;
         margin-bottom: 14px;
-        max-width: 420px;
-        margin-left: auto;
-        margin-right: auto;
       }
       .sem2-card {
         flex: 1;

@@ -217,7 +217,12 @@
 
     <div style="text-align:center; padding-bottom:30px;">
       <p style="font-size:0.82rem; color:rgba(255,255,255,0.5); margin-bottom:14px">Comparte este logro con tu familia y docentes</p>
-      <button class="btn-main" onclick="restartGame()">Jugar de nuevo</button>
+      <div class="share-icons-row">
+        <button class="share-icon-btn share-whatsapp" onclick="shareToWhatsapp()" title="Compartir por WhatsApp" aria-label="Compartir por WhatsApp">💬</button>
+        <button class="share-icon-btn share-facebook" onclick="shareToFacebook()" title="Compartir en Facebook" aria-label="Compartir en Facebook">📘</button>
+        <button class="share-icon-btn share-copy" onclick="shareCopyLink()" title="Copiar enlace" aria-label="Copiar enlace">🔗</button>
+      </div>
+      <button class="btn-main" onclick="restartGame()" style="margin-top:18px">Jugar de nuevo</button>
     </div>
 
   </div>
