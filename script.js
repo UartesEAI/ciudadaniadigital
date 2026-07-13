@@ -391,7 +391,7 @@ function renderMap() {
       </svg>
     </div>
     <div class="board-legend" id="zone-detail">
-      <p>Toca una zona de color para empezar 🧭</p>
+      <p>Avanza zona por zona: completa una para desbloquear la siguiente 🔓</p>
     </div>`;
 
   showZoneDetail(firstActionableZoneIdx());
