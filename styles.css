@@ -656,6 +656,8 @@
       justify-content: center;
       box-shadow: 0 3px 10px rgba(0,0,0,0.25);
       transition: transform 0.15s ease;
+      overflow: hidden;
+      padding: 0;
     }
     .share-icon-btn:hover { transform: translateY(-2px); }
     .share-icon-btn:active { transform: translateY(1px); }
