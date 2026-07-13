@@ -173,33 +173,164 @@ function confirmResetProgress() {
 function getShareData() {
   const scoreText = document.getElementById('final-score-display')?.textContent || '';
   return {
+    scoreText,
     title: 'Ciudadano/a Digital — Isla del Tesoro',
-    text: `¡Completé la aventura de Ciudadano/a Digital y obtuve ${scoreText}! 🏝️ Aprende a navegar el mundo digital con seguridad y respeto.`,
+    text: `¡Completé la aventura de Ciudadano/a Digital y obtuve ${scoreText}! 🏝️ Ahora soy Ciudadano/a Digital. Aprende a navegar el mundo digital con seguridad y respeto.`,
     url: window.location.href
   };
 }
 
-// Botón genérico: usa el share nativo del dispositivo si existe (móviles),
-// si no, cae en el flujo de copiar enlace.
-function shareAchievement() {
-  const shareData = getShareData();
-  if (navigator.share) {
-    navigator.share(shareData).catch(() => {});
-  } else {
-    shareCopyLink();
-  }
+// Dibuja un pequeño rectángulo con esquinas redondeadas en el canvas
+function roundRectPath(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
 }
 
-function shareToWhatsapp() {
+// Genera la imagen "certificado" (1200x630) con el puntaje real del jugador
+function generateCertificateBlob(callback) {
+  const { scoreText } = getShareData();
+  const W = 1200, H = 630;
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  // Fondo degradado (mismo estilo que la pantalla final)
+  const grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, '#062541');
+  grad.addColorStop(0.6, '#0d4d7a');
+  grad.addColorStop(1, '#1a6ea8');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  // Isla / palmera
+  ctx.textAlign = 'center';
+  ctx.font = '90px "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
+  ctx.fillText('🏝️', W / 2, 135);
+
+  // Título
+  ctx.fillStyle = '#f4c430';
+  ctx.font = 'bold 56px Arial, sans-serif';
+  ctx.fillText('¡Ahora soy Ciudadano/a Digital!', W / 2, 225);
+
+  // Subtítulo
+  ctx.fillStyle = 'rgba(255,255,255,0.9)';
+  ctx.font = '26px Arial, sans-serif';
+  ctx.fillText('Superé los 5 desafíos de la Isla del Tesoro Digital 🏆', W / 2, 268);
+
+  // Insignia de puntaje
+  const badgeW = 460, badgeH = 130, badgeX = (W - badgeW) / 2, badgeY = 320;
+  ctx.fillStyle = 'rgba(255,255,255,0.10)';
+  roundRectPath(ctx, badgeX, badgeY, badgeW, badgeH, 24);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+  ctx.lineWidth = 2;
+  roundRectPath(ctx, badgeX, badgeY, badgeW, badgeH, 24);
+  ctx.stroke();
+
+  ctx.fillStyle = 'rgba(255,255,255,0.75)';
+  ctx.font = 'bold 18px Arial, sans-serif';
+  ctx.fillText('PUNTUACIÓN TOTAL', W / 2, badgeY + 38);
+
+  ctx.fillStyle = '#f4c430';
+  ctx.font = 'bold 46px Arial, sans-serif';
+  ctx.fillText(scoreText || '0 / 0 puntos', W / 2, badgeY + 90);
+
+  // Pie de página
+  ctx.fillStyle = 'rgba(255,255,255,0.55)';
+  ctx.font = '18px Arial, sans-serif';
+  ctx.fillText('Isla del Tesoro Digital · Educación Artística Intercultural · UArtes', W / 2, H - 34);
+
+  canvas.toBlob(callback, 'image/png', 0.95);
+}
+
+function buildCertificateFile() {
+  return new Promise((resolve) => {
+    generateCertificateBlob((blob) => {
+      resolve(new File([blob], 'ciudadano-digital-logro.png', { type: 'image/png' }));
+    });
+  });
+}
+
+function downloadFile(file) {
+  const url = URL.createObjectURL(file);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = file.name;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+
+// Botón genérico: abre el menú nativo de compartir del dispositivo con la
+// imagen del certificado adjunta (funciona en la mayoría de celulares).
+async function shareAchievement() {
+  const shareData = getShareData();
+  const file = await buildCertificateFile();
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file], title: shareData.title, text: shareData.text });
+      return;
+    } catch (e) { /* usuario canceló o falló; seguimos con el respaldo */ }
+  }
+  downloadFile(file);
+  alert('Se descargó tu certificado con el puntaje. Puedes adjuntarlo directamente al compartir en tus redes.');
+}
+
+// WhatsApp: intenta compartir la imagen adjunta vía el selector nativo.
+// Si el navegador no lo soporta (ej. computadora de escritorio), descarga
+// el certificado y abre WhatsApp Web con el texto + enlace como respaldo.
+async function shareToWhatsapp() {
   const { text, url } = getShareData();
+  const file = await buildCertificateFile();
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file], title: 'Ciudadano/a Digital', text });
+      return;
+    } catch (e) {}
+  }
+  downloadFile(file);
   const waUrl = `https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`;
   window.open(waUrl, '_blank', 'noopener,noreferrer');
 }
 
-function shareToFacebook() {
+// Facebook: misma lógica — comparte la imagen adjunta si el navegador lo
+// permite; si no, descarga el certificado y abre el diálogo de Facebook
+// (que mostrará el link con la portada general, no el puntaje).
+async function shareToFacebook() {
   const { text, url } = getShareData();
+  const file = await buildCertificateFile();
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file], title: 'Ciudadano/a Digital', text });
+      return;
+    } catch (e) {}
+  }
+  downloadFile(file);
   const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`;
   window.open(fbUrl, '_blank', 'noopener,noreferrer,width=600,height=500');
+}
+
+// Instagram no tiene una forma web de publicar directamente: siempre hay
+// que adjuntar la imagen a mano. Intentamos el selector nativo primero
+// (en el celular puede ofrecer "Instagram" como destino); si no, descarga
+// el certificado con instrucciones.
+async function shareToInstagram() {
+  const shareData = getShareData();
+  const file = await buildCertificateFile();
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file], title: shareData.title, text: shareData.text });
+      return;
+    } catch (e) {}
+  }
+  downloadFile(file);
+  alert('Se descargó tu certificado con el puntaje. Ábrelo desde Instagram y súbelo a tu historia o publicación.');
 }
 
 function shareCopyLink() {
@@ -213,6 +344,8 @@ function shareCopyLink() {
     alert('No se pudo copiar automáticamente. Copia el enlace desde la barra de tu navegador.');
   }
 }
+
+
 
 // =================== MAP RENDERING ===================
 // ViewBox SVG superpuesto: 1000 x 707
