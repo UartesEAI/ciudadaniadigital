@@ -170,40 +170,64 @@ function confirmResetProgress() {
   }
 }
 
-function getShareData() {
+function getShareData(context) {
+  const scoreText = document.getElementById('final-score-display')?.textContent || '';
+  const text = context === 'intro'
+    ? '¡Te invito a jugar Ciudadano/a Digital — Isla del Tesoro! 🏝️ Aprende a navegar el mundo digital con seguridad y respeto.'
+    : `¡Completé la aventura de Ciudadano/a Digital y obtuve ${scoreText}! 🏝️ Aprende a navegar el mundo digital con seguridad y respeto.`;
   return {
     title: 'Ciudadano/a Digital — Isla del Tesoro',
-    text: '¡Te invito a jugar Ciudadano/a Digital — Isla del Tesoro! 🏝️ Recorre 5 zonas, supera los retos y conviértete en Ciudadano/a Digital, aprendiendo a navegar el mundo digital con seguridad y respeto.',
-    url: window.location.href
+    text,
+    url: window.location.href,
+    image: 'portada.png'
   };
 }
 
-// Botón genérico: usa el selector nativo de compartir del dispositivo
-// (comparte el link del juego; la vista previa usa la portada configurada
-// en las etiquetas Open Graph del <head>).
-function shareAchievement() {
-  const shareData = getShareData();
-  if (navigator.share) {
-    navigator.share(shareData).catch(() => {});
-  } else {
-    shareCopyLink();
+// Convierte portada.png en un File para poder adjuntarlo con la Web Share API
+// (funciona en navegadores móviles compatibles: Chrome/Safari en Android e iOS).
+async function getCoverImageFile() {
+  try {
+    const response = await fetch('portada.png');
+    const blob = await response.blob();
+    return new File([blob], 'portada.png', { type: blob.type || 'image/png' });
+  } catch (e) {
+    return null;
   }
 }
 
-function shareToWhatsapp() {
-  const { text, url } = getShareData();
+// Botón genérico: usa el share nativo del dispositivo si existe (móviles),
+// adjuntando la imagen de portada cuando el navegador lo permite.
+// Si no hay soporte, cae en el flujo de copiar enlace.
+async function shareAchievement(context) {
+  const shareData = getShareData(context);
+  const file = await getCoverImageFile();
+
+  if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+    // Comparte texto + enlace + imagen adjunta (ideal en móviles)
+    navigator.share({ title: shareData.title, text: shareData.text, url: shareData.url, files: [file] }).catch(() => {});
+  } else if (navigator.share) {
+    // El dispositivo soporta compartir pero no archivos: comparte texto + enlace,
+    // y la imagen igual aparecerá como preview gracias a las etiquetas Open Graph.
+    navigator.share({ title: shareData.title, text: shareData.text, url: shareData.url }).catch(() => {});
+  } else {
+    shareCopyLink(context);
+  }
+}
+
+function shareToWhatsapp(context) {
+  const { text, url } = getShareData(context);
   const waUrl = `https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`;
   window.open(waUrl, '_blank', 'noopener,noreferrer');
 }
 
-function shareToFacebook() {
-  const { text, url } = getShareData();
+function shareToFacebook(context) {
+  const { text, url } = getShareData(context);
   const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`;
   window.open(fbUrl, '_blank', 'noopener,noreferrer,width=600,height=500');
 }
 
-function shareCopyLink() {
-  const { text, url } = getShareData();
+function shareCopyLink(context) {
+  const { text, url } = getShareData(context);
   const fullText = `${text} ${url}`;
   if (navigator.clipboard) {
     navigator.clipboard.writeText(fullText)
@@ -213,8 +237,6 @@ function shareCopyLink() {
     alert('No se pudo copiar automáticamente. Copia el enlace desde la barra de tu navegador.');
   }
 }
-
-
 
 // =================== MAP RENDERING ===================
 // ViewBox SVG superpuesto: 1000 x 707
