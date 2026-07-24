@@ -157,6 +157,29 @@ function showFinal() {
   });
 }
 
+// ── Acordeón de la escena "Cómo ser un ciudadano digital pro" ──
+function toggleAccordion(headerBtn) {
+  const item = headerBtn.closest('.accordion-item');
+  const body = item.querySelector('.accordion-body');
+  const wasOpen = item.classList.contains('open');
+
+  // Cierra los demás items del mismo acordeón (comportamiento de acordeón clásico)
+  item.parentElement.querySelectorAll('.accordion-item.open').forEach(openItem => {
+    if (openItem !== item) {
+      openItem.classList.remove('open');
+      openItem.querySelector('.accordion-body').style.maxHeight = null;
+    }
+  });
+
+  if (wasOpen) {
+    item.classList.remove('open');
+    body.style.maxHeight = null;
+  } else {
+    item.classList.add('open');
+    body.style.maxHeight = body.scrollHeight + 'px';
+  }
+}
+
 function restartGame() {
   state = { completed: [], scores: {}, currentZone: null, gameScore: 0, totalScore: 0, feedbackQueue: [] };
   try { localStorage.removeItem('cdState'); } catch(e){}
